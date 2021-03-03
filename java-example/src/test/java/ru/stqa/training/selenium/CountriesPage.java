@@ -23,14 +23,14 @@ public class CountriesPage {
     public void start() {
         driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-    }
-
-    @Test
-    public void countrySortCheck() {
         driver.get("http://localhost/litecart/admin/");
         driver.findElement(By.name("username")).sendKeys("admin");
         driver.findElement(By.name("password")).sendKeys("admin");
         driver.findElement(By.name("login")).click();
+    }
+
+    @Test
+    public void countrySortCheck() {
         driver.get("http://localhost/litecart/admin/?app=countries&doc=countries");
 
         WebElement tableCountries = driver.findElement(By.cssSelector("table.dataTable"));
@@ -51,9 +51,10 @@ public class CountriesPage {
                 List sortedStates = new ArrayList(stateList);
                 Collections.sort(stateList);
                 Assert.assertTrue(stateList.equals(sortedStates));
+
+                driver.get("http://localhost/litecart/admin/?app=countries&doc=countries");
+                countryRows = driver.findElements(By.cssSelector("table.dataTable tr.row"));
             }
-            driver.get("http://localhost/litecart/admin/?app=countries&doc=countries");
-            countryRows = driver.findElements(By.cssSelector("table.dataTable tr.row"));
         }
 
         List sortedCountries = new ArrayList(countryList);
@@ -61,6 +62,30 @@ public class CountriesPage {
         Collections.sort(sortedCountries);
         Assert.assertTrue(countryList.equals(sortedCountries));
 
+    }
+
+    @Test
+    public void geozoneSortCheck() {
+        driver.get("http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones");
+
+        WebElement tableZones = driver.findElement(By.cssSelector("table.dataTable"));
+        List<WebElement> zoneRows = tableZones.findElements(By.cssSelector("tr.row"));
+        for (int i = 0; i < zoneRows.size(); i++) {
+            zoneRows.get(i).findElement(By.cssSelector("td:nth-child(3)>a")).click();
+            WebElement tableCountryZones = driver.findElement(By.cssSelector("#table-zones"));
+            List<WebElement> stateRows = tableCountryZones.findElements(By.cssSelector("tr:not(.header):not(:last-child)"));
+            ArrayList<String> zoneList = new ArrayList<>();
+            for (int s = 0; s < stateRows.size(); s++) {
+                zoneList.add(stateRows.get(s).findElement(By.cssSelector("td:nth-child(3)>select>option[selected=selected]")).getAttribute("textContent"));
+            }
+
+            List sortedList = new ArrayList(zoneList);
+            Collections.sort(sortedList);
+            Assert.assertTrue(zoneList.equals(sortedList));
+
+            driver.get("http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones");
+            zoneRows = driver.findElements(By.cssSelector("table.dataTable tr.row"));
+        }
     }
 
     @After
