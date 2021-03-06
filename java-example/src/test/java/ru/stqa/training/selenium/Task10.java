@@ -4,9 +4,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.ie.InternetExplorerOptions;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
@@ -22,6 +27,11 @@ public class Task10 {
     @Before
     public void start() {
         driver = new ChromeDriver();
+//        driver = new FirefoxDriver();
+//        DesiredCapabilities caps = new DesiredCapabilities();
+//        caps.setCapability(InternetExplorerDriver.REQUIRE_WINDOW_FOCUS, true);
+//        InternetExplorerOptions options = new InternetExplorerOptions().setPageLoadStrategy(PageLoadStrategy.NONE);
+//        driver = new InternetExplorerDriver(options);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
@@ -43,11 +53,11 @@ public class Task10 {
         assertEquals(driver.findElement(By.cssSelector("#box-product .price-wrapper .regular-price")).getText(), price); //б) на главной странице и на странице товара совпадают цены (обычная)
         assertEquals(driver.findElement(By.cssSelector("#box-product .price-wrapper .campaign-price")).getText(), discountPrice); //б) на главной странице и на странице товара совпадают цены (акционная)
         assertTrue(checkColor(priceColor, "price")); //в) обычная цена серая (можно считать, что "серый" цвет это такой, у которого в RGBa представлении одинаковые значения для каналов R, G и B)
-        assertEquals(driver.findElement(By.cssSelector("#box-product .price-wrapper .regular-price")).getCssValue("text-decoration-line"), "line-through");//в) обычная цена зачёркнутая
+        assertEquals(driver.findElement(By.cssSelector("#box-product .price-wrapper .regular-price")).getCssValue("text-decoration").split(" ")[0], "line-through");//в) обычная цена зачёркнутая
         assertTrue(checkColor(discountPriceColor, "discontPrice"));//г) акционная красная на главной
         assertTrue(checkColor(driver.findElement(By.cssSelector("#box-product .price-wrapper .campaign-price")).getCssValue("color"), "discontPrice"));//г акционная красная на странице товара
-        assertEquals(discountFont, "700");//г) акционная цена на главной страницен жирная
-        assertEquals(driver.findElement(By.cssSelector("#box-product .price-wrapper .campaign-price")).getCssValue("font-weight"), "700" );//г) акционная цена на страницен товара жирная
+        assertTrue(checkFontBold(discountFont));//г) акционная цена на главной страницен жирная
+        assertTrue(checkFontBold(driver.findElement(By.cssSelector("#box-product .price-wrapper .campaign-price")).getCssValue("font-weight")));//г) акционная цена на страницен товара жирная
         assertTrue(priceFontSize<discountPriceFontSize);//д) акционная цена крупнее, чем обычная(главная)
         assertTrue(Double.parseDouble(driver.findElement(By.cssSelector("#box-product .price-wrapper .regular-price")).getCssValue("font-size").replace("px", ""))<
                 Double.parseDouble(driver.findElement(By.cssSelector("#box-product .price-wrapper .campaign-price")).getCssValue("font-size").replace("px", ""))); //д) акционная цена крупнее, чем обычная(страница товара)
@@ -55,8 +65,7 @@ public class Task10 {
     }
 
     public Boolean checkColor(String color, String price) {
-
-        String[] numbers = color.replace("rgba(", "").replace(")", "").split(",");
+        String[] numbers =color.replace(")", "").split("\\(")[1].split(",");
         int r = Integer.parseInt(numbers[0].trim());
         int g = Integer.parseInt(numbers[1].trim());
         int b = Integer.parseInt(numbers[2].trim());
@@ -65,6 +74,11 @@ public class Task10 {
         } else if (price == "discontPrice") {
             if (g == 0 && b == 0) return true;
         }
+        return false;
+    }
+
+    public Boolean checkFontBold(String bold){
+        if(bold.equals("700")||bold.equals("900")) return true;
         return false;
     }
 
