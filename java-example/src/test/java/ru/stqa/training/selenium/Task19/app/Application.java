@@ -1,6 +1,6 @@
 package ru.stqa.training.selenium.Task19.app;
 
-import org.openqa.selenium.By;
+import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import ru.stqa.training.selenium.Task19.pages.CartPage;
@@ -21,19 +21,25 @@ public class Application {
         cartPage = new CartPage(driver);
     }
 
+    public Integer finalCount;
+
     public void openMainPage(){
         mainPage.open();
     }
 
     public void addProductToCart(Integer num) {
         for (int i = 1; i <= num; i++) {
-            Integer finalCount = mainPage.itemsInCartCount() + 1;
+            finalCount = mainPage.itemsInCartCount() + 1;
             mainPage.clickRandomProduct();
             productPage.selectProductSize("Small");
             productPage.addToCart();
             productPage.checkUpdateCart(finalCount);
             mainPage.open();
         }
+    }
+
+    public void checkUpdateCart(){
+        Assert.assertEquals(mainPage.itemsInCartCount(), finalCount);
     }
 
     public void deleteAllProductsFromCart() {
@@ -50,6 +56,10 @@ public class Application {
                 cartPage.waitDelProductFromTable(finalRowsInTable);
             }
         }
+    }
+
+    public void checkThatCartIsEmpty(){
+        cartPage.waitEmptyCart();
     }
 
 
